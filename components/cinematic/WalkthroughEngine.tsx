@@ -19,37 +19,64 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseOffsetRef = useRef({ x: 0, y: 0 });
+  const scrollTicking = useRef(false);
 
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeHotspot, setActiveHotspot] = useState<SceneData["hotspot"] | null>(null);
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const [isMobile, setIsMobile] = useState(false);
 
   const scenes = WALKTHROUGH_SCENES;
   const totalScenes = scenes.length;
 
-  // Eagerly preload all scene images in background for instant transitions
+  // Eagerly preload first 4 scenes for instant FCP/LCP, then idle-load remainder
   useEffect(() => {
     if (typeof window !== "undefined") {
-      scenes.forEach((scene) => {
+      const preloadInitial = scenes.slice(0, 4);
+      preloadInitial.forEach((scene) => {
         const img = new window.Image();
         img.src = scene.image;
       });
+
+      // 18. Defer non-critical image preloading to idle time
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(() => {
+          scenes.slice(4).forEach((scene) => {
+            const img = new window.Image();
+            img.src = scene.image;
+          });
+        });
+      } else {
+        setTimeout(() => {
+          scenes.slice(4).forEach((scene) => {
+            const img = new window.Image();
+            img.src = scene.image;
+          });
+        }, 2000);
+      }
     }
   }, [scenes]);
 
   // Handle Resize & Device Detection
   useEffect(() => {
+    let resizeTimer: NodeJS.Timeout;
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      clearTimeout(resizeTimer);
+      // 8. Debounce resize handler
+      resizeTimer = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768);
+      }, 150);
     };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", checkMobile, { passive: true });
+    return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", checkMobile);
+    };
   }, []);
 
-  // Three.js Atmospheric Motes & Ambient Lighting
+  // 15. Three.js Atmospheric Motes & Ambient Lighting (Independent from mouse React re-renders)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -69,7 +96,7 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
       renderer = new THREE.WebGLRenderer({
         canvas,
         alpha: true,
-        antialias: false, // optimize performance
+        antialias: false, // 13 & 16. optimize performance & GPU power
         powerPreference: "high-performance",
       });
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -79,7 +106,7 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
     }
 
     // Atmospheric Floating Gold & Warm Amber Particles
-    const particleCount = isMobile ? 40 : 110;
+    const particleCount = isMobile ? 35 : 90;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const scales = new Float32Array(particleCount);
@@ -112,9 +139,9 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
-    window.addEventListener("resize", onResize);
+    window.addEventListener("resize", onResize, { passive: true });
 
-    // Animation Loop
+    // Animation Loop: Reads mutable mouseOffsetRef smoothly at 60fps without React re-render churn
     let clock = new THREE.Clock();
     const animate = () => {
       const elapsedTime = clock.getElapsedTime();
@@ -122,8 +149,9 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
       particles.rotation.x = Math.sin(elapsedTime * 0.02) * 0.04;
 
       // Subtle responsive parallax
-      camera.position.x += (mouseOffset.x * 0.3 - camera.position.x) * 0.05;
-      camera.position.y += (-mouseOffset.y * 0.2 - camera.position.y) * 0.05;
+      const offset = mouseOffsetRef.current;
+      camera.position.x += (offset.x * 0.3 - camera.position.x) * 0.05;
+      camera.position.y += (-offset.y * 0.2 - camera.position.y) * 0.05;
 
       renderer.render(scene, camera);
       animationFrameId = requestAnimationFrame(animate);
@@ -137,43 +165,52 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
       material.dispose();
       renderer.dispose();
     };
-  }, [mouseOffset, isMobile]);
+  }, [isMobile]);
 
-  // Desktop Mouse Parallax Listener
+  // 8 & 15. Desktop Mouse Parallax Listener (Updates ref directly without triggering React re-renders)
   useEffect(() => {
     if (isMobile) return;
     const handleMouseMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth) * 2 - 1;
       const ny = (e.clientY / window.innerHeight) * 2 - 1;
-      setMouseOffset({ x: nx, y: ny });
+      mouseOffsetRef.current = { x: nx, y: ny };
     };
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [isMobile]);
 
-  // Scroll Synchronization
+  // 8 & 15. Scroll Synchronization Throttled via requestAnimationFrame
   const handleScroll = useCallback(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    if (scrollTicking.current) return;
+    scrollTicking.current = true;
 
-    const rect = container.getBoundingClientRect();
-    const scrollHeight = container.scrollHeight - window.innerHeight;
-    const currentScrolled = -rect.top;
+    requestAnimationFrame(() => {
+      scrollTicking.current = false;
+      const container = containerRef.current;
+      if (!container) return;
 
-    const progress = Math.max(0, Math.min(1, currentScrolled / scrollHeight));
-    setScrollProgress(progress);
+      const rect = container.getBoundingClientRect();
+      const scrollHeight = container.scrollHeight - window.innerHeight;
+      const currentScrolled = -rect.top;
 
-    // Determine current active scene
-    const sceneIndex = Math.min(
-      totalScenes - 1,
-      Math.floor(progress * totalScenes)
-    );
+      const progress = Math.max(0, Math.min(1, currentScrolled / scrollHeight));
+      setScrollProgress(progress);
 
-    if (sceneIndex !== currentSceneIdx) {
-      setCurrentSceneIdx(sceneIndex);
-      if (onSceneChange) onSceneChange(sceneIndex);
-    }
-  }, [totalScenes, currentSceneIdx, onSceneChange]);
+      // Determine current active scene
+      const sceneIndex = Math.min(
+        totalScenes - 1,
+        Math.floor(progress * totalScenes)
+      );
+
+      setCurrentSceneIdx((prev) => {
+        if (prev !== sceneIndex) {
+          if (onSceneChange) onSceneChange(sceneIndex);
+          return sceneIndex;
+        }
+        return prev;
+      });
+    });
+  }, [totalScenes, onSceneChange]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -227,11 +264,7 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
                 isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
               }`}
               style={{
-                transform: isActive
-                  ? `scale(${forwardZoom}) translate3d(${mouseOffset.x * 6}px, ${
-                      mouseOffset.y * 4
-                    }px, 0)`
-                  : "scale(1.0)",
+                transform: isActive ? `scale(${forwardZoom})` : "scale(1.0)",
               }}
             >
               <Image

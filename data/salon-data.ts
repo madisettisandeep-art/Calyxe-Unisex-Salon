@@ -517,3 +517,54 @@ export function generateWhatsAppBookingMessage(data: {
 
   return lines.join("\n");
 }
+
+/* =========================================================================
+   PERFORMANCE OPTIMIZATION: INDEXED LOOKUP MAPS & IN-MEMORY QUERY CACHE
+   - Item 3: Index in-memory database
+   - Item 6: Cache expensive queries
+   - Item 7: Eliminate N+1 sequential filters
+   ========================================================================= */
+
+// Pre-indexed category map for O(1) retrieval without array filtering
+export const SERVICES_BY_CATEGORY_INDEX: Record<string, ServiceItem[]> = SALON_SERVICES.reduce(
+  (acc, service) => {
+    if (!acc[service.category]) {
+      acc[service.category] = [];
+    }
+    acc[service.category].push(service);
+    return acc;
+  },
+  {} as Record<string, ServiceItem[]>
+);
+
+// Pre-indexed ID map for O(1) single-item lookup
+export const SERVICES_BY_ID_INDEX = new Map<string, ServiceItem>(
+  SALON_SERVICES.map((s) => [s.id, s])
+);
+
+// In-Memory Query Cache with TTL for expensive requests (Cache API responses & queries)
+class QueryCacheManager {
+  private cache = new Map<string, { data: unknown; expiresAt: number }>();
+  private defaultTTL = 1000 * 60 * 30; // 30 minutes
+
+  get<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      return null;
+    }
+    return entry.data as T;
+  }
+
+  set<T>(key: string, data: T, ttlMs: number = this.defaultTTL): void {
+    this.cache.set(key, { data, expiresAt: Date.now() + ttlMs });
+  }
+
+  has(key: string): boolean {
+    return this.get(key) !== null;
+  }
+}
+
+export const queryCache = new QueryCacheManager();
+

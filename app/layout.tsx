@@ -95,6 +95,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preload" as="image" href="/walkthrough/scene_01_entrance.jpg" />
         <link rel="preload" as="image" href="/walkthrough/scene_02_doors.jpg" />
         <link rel="preload" as="image" href="/walkthrough/scene_03_reception.jpg" />

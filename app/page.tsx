@@ -1,54 +1,112 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { LoadingScreen } from "@/components/cinematic/LoadingScreen";
 import { MinimalNav } from "@/components/navigation/MinimalNav";
-import { FullscreenMenu } from "@/components/navigation/FullscreenMenu";
 import { WalkthroughEngine } from "@/components/cinematic/WalkthroughEngine";
 import { BrandStory } from "@/components/ui/BrandStory";
 import { ServiceSection } from "@/components/services/ServiceSection";
-import { TransformationSlider } from "@/components/gallery/TransformationSlider";
-import { CinematicReviews } from "@/components/reviews/CinematicReviews";
-import { BookingDesk } from "@/components/booking/BookingDesk";
-import { ContactSection } from "@/components/booking/ContactSection";
 import { FinalEnding } from "@/components/ui/FinalEnding";
 import { Footer } from "@/components/ui/Footer";
+import {
+  TransformationSliderSkeleton,
+  ReviewsSkeleton,
+  BookingDeskSkeleton,
+} from "@/components/ui/Skeletons";
+
+// 9 & 17. Split code into chunks & Add Lazy Loading for heavy off-screen components
+const TransformationSlider = dynamic(
+  () =>
+    import("@/components/gallery/TransformationSlider").then(
+      (mod) => mod.TransformationSlider
+    ),
+  {
+    loading: () => <TransformationSliderSkeleton />,
+    ssr: false,
+  }
+);
+
+const CinematicReviews = dynamic(
+  () =>
+    import("@/components/reviews/CinematicReviews").then(
+      (mod) => mod.CinematicReviews
+    ),
+  {
+    loading: () => <ReviewsSkeleton />,
+    ssr: false,
+  }
+);
+
+const BookingDesk = dynamic(
+  () =>
+    import("@/components/booking/BookingDesk").then((mod) => mod.BookingDesk),
+  {
+    loading: () => <BookingDeskSkeleton />,
+    ssr: false,
+  }
+);
+
+const ContactSection = dynamic(
+  () =>
+    import("@/components/booking/ContactSection").then(
+      (mod) => mod.ContactSection
+    ),
+  {
+    ssr: false,
+  }
+);
+
+// 18. Defer non-critical navigation menu chunk until opened
+const FullscreenMenu = dynamic(
+  () =>
+    import("@/components/navigation/FullscreenMenu").then(
+      (mod) => mod.FullscreenMenu
+    ),
+  {
+    ssr: false,
+  }
+);
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentSceneNumber, setCurrentSceneNumber] = useState("01");
   const [bookingService, setBookingService] = useState("");
 
-  const handleSceneChange = (sceneIndex: number) => {
+  // 15. Memoized callbacks to avoid unnecessary child re-renders
+  const handleSceneChange = useCallback((sceneIndex: number) => {
     const num = (sceneIndex + 1).toString().padStart(2, "0");
     setCurrentSceneNumber(num);
-  };
+  }, []);
 
-  const handleOpenBooking = () => {
+  const handleOpenBooking = useCallback(() => {
     const desk = document.getElementById("booking-section");
     if (desk) {
       desk.scrollIntoView({ behavior: "smooth" });
     }
-  };
+  }, []);
 
-  const handleSelectServiceForBooking = (serviceName: string) => {
-    setBookingService(serviceName);
-    handleOpenBooking();
-  };
+  const handleSelectServiceForBooking = useCallback(
+    (serviceName: string) => {
+      setBookingService(serviceName);
+      handleOpenBooking();
+    },
+    [handleOpenBooking]
+  );
 
-  const handleExploreCategory = (category: string) => {
+  const handleExploreCategory = useCallback((category: string) => {
     const section = document.getElementById("services-section");
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
     }
-  };
+  }, []);
 
-  const handleNavigateSection = (sectionId: string) => {
+  const handleNavigateSection = useCallback((sectionId: string) => {
     const target = document.getElementById(sectionId);
     if (target) {
       target.scrollIntoView({ behavior: "smooth" });
     }
-  };
+  }, []);
 
   return (
     <main className="relative min-h-screen bg-brand-background text-brand-text selection:bg-brand-primary selection:text-white">
@@ -62,12 +120,14 @@ export default function HomePage() {
         currentSceneNumber={currentSceneNumber}
       />
 
-      {/* Fullscreen Cinematic Navigation Overlay */}
-      <FullscreenMenu
-        isOpen={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        onNavigate={handleNavigateSection}
-      />
+      {/* Fullscreen Cinematic Navigation Overlay - Loaded on demand */}
+      {menuOpen && (
+        <FullscreenMenu
+          isOpen={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          onNavigate={handleNavigateSection}
+        />
+      )}
 
       {/* Core Experience: 12-Scene Scroll-Driven Cinematic Walkthrough */}
       <WalkthroughEngine
@@ -79,16 +139,16 @@ export default function HomePage() {
       {/* Editorial Brand Story: "The Calyxé Experience" */}
       <BrandStory />
 
-      {/* Service Discoveries */}
+      {/* Service Discoveries with Category Indexing & Pagination */}
       <ServiceSection onSelectServiceForBooking={handleSelectServiceForBooking} />
 
-      {/* Interactive Draggable Transformation Gallery */}
+      {/* 9 & 17. Lazy-loaded Draggable Transformation Gallery */}
       <TransformationSlider />
 
-      {/* 4.9 ★ Floating Editorial Reviews */}
+      {/* 9 & 17. Lazy-loaded 4.9 ★ Floating Editorial Reviews */}
       <CinematicReviews />
 
-      {/* Arrival at Concierge Booking Desk */}
+      {/* 9 & 17. Lazy-loaded Concierge Booking Desk */}
       <BookingDesk initialService={bookingService} />
 
       {/* Contact & Circuit House Road Google Map */}

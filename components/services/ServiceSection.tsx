@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { SALON_SERVICES, ServiceItem } from "@/data/salon-data";
-import { Sparkles, Clock, ArrowRight, CheckCircle2 } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { SERVICES_BY_CATEGORY_INDEX, ServiceItem } from "@/data/salon-data";
+import { Sparkles, Clock, ArrowRight, ChevronDown } from "lucide-react";
 
 interface ServiceSectionProps {
   onSelectServiceForBooking: (serviceName: string) => void;
@@ -17,14 +17,76 @@ const CATEGORIES = [
   "BRIDAL / OCCASIONS",
 ] as const;
 
+// 15. Memoized Service Card to prevent unnecessary re-renders
+const ServiceCard = React.memo(
+  ({
+    service,
+    onSelect,
+  }: {
+    service: ServiceItem;
+    onSelect: (name: string) => void;
+  }) => {
+    return (
+      <div className="group relative p-6 sm:p-8 rounded-2xl glass-panel border border-brand-border hover:border-brand-primary/60 transition-all duration-300 flex flex-col justify-between">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-widest uppercase bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+              {service.gender}
+            </span>
+            <div className="flex items-center gap-1.5 text-xs text-brand-muted font-mono">
+              <Clock className="w-3.5 h-3.5" />
+              <span>{service.duration}</span>
+            </div>
+          </div>
+
+          <h3 className="text-xl sm:text-2xl font-editorial font-light text-brand-text tracking-wide group-hover:text-brand-primary transition-colors">
+            {service.service_name}
+          </h3>
+
+          <p className="text-xs sm:text-sm text-brand-muted font-light leading-relaxed">
+            {service.description}
+          </p>
+        </div>
+
+        {/* Action Bottom */}
+        <div className="pt-6 mt-6 border-t border-brand-border/60 flex items-center justify-between">
+          <span className="text-xs font-mono tracking-wider text-brand-primary font-medium">
+            {service.priceFormatted}
+          </span>
+
+          <button
+            onClick={() => onSelect(service.service_name)}
+            data-interactive
+            aria-label={`Select ${service.service_name} for appointment`}
+            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.15em] font-semibold text-brand-text group-hover:text-brand-primary transition-colors"
+          >
+            <span>Select Service</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+);
+ServiceCard.displayName = "ServiceCard";
+
 export const ServiceSection: React.FC<ServiceSectionProps> = ({
   onSelectServiceForBooking,
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>("HAIR");
+  const [displayLimit, setDisplayLimit] = useState<number>(6);
 
-  const filteredServices = SALON_SERVICES.filter(
-    (s) => s.category === activeCategory
-  );
+  // 3 & 7. Indexed O(1) query without array filter reallocation
+  const allServicesForCategory = useMemo(() => {
+    return SERVICES_BY_CATEGORY_INDEX[activeCategory] || [];
+  }, [activeCategory]);
+
+  // 12. Paginate large lists: slice items to minimize initial DOM node overhead
+  const visibleServices = useMemo(() => {
+    return allServicesForCategory.slice(0, displayLimit);
+  }, [allServicesForCategory, displayLimit]);
+
+  const hasMore = allServicesForCategory.length > displayLimit;
 
   return (
     <section
@@ -55,7 +117,10 @@ export const ServiceSection: React.FC<ServiceSectionProps> = ({
             return (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  setDisplayLimit(6); // reset pagination on category switch
+                }}
                 data-interactive
                 className={`whitespace-nowrap px-4 sm:px-6 py-2.5 rounded-full text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 ${
                   isActive
@@ -71,49 +136,28 @@ export const ServiceSection: React.FC<ServiceSectionProps> = ({
 
         {/* Service Discoveries Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-          {filteredServices.map((service) => (
-            <div
+          {visibleServices.map((service) => (
+            <ServiceCard
               key={service.id}
-              className="group relative p-6 sm:p-8 rounded-2xl glass-panel border border-brand-border hover:border-brand-primary/60 transition-all duration-300 flex flex-col justify-between"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-widest uppercase bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-                    {service.gender}
-                  </span>
-                  <div className="flex items-center gap-1.5 text-xs text-brand-muted font-mono">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{service.duration}</span>
-                  </div>
-                </div>
-
-                <h3 className="text-xl sm:text-2xl font-editorial font-light text-brand-text tracking-wide group-hover:text-brand-primary transition-colors">
-                  {service.service_name}
-                </h3>
-
-                <p className="text-xs sm:text-sm text-brand-muted font-light leading-relaxed">
-                  {service.description}
-                </p>
-              </div>
-
-              {/* Action Bottom */}
-              <div className="pt-6 mt-6 border-t border-brand-border/60 flex items-center justify-between">
-                <span className="text-xs font-mono tracking-wider text-brand-primary">
-                  {service.priceFormatted}
-                </span>
-
-                <button
-                  onClick={() => onSelectServiceForBooking(service.service_name)}
-                  data-interactive
-                  className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.15em] font-semibold text-brand-text group-hover:text-brand-primary transition-colors"
-                >
-                  <span>Select Service</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                </button>
-              </div>
-            </div>
+              service={service}
+              onSelect={onSelectServiceForBooking}
+            />
           ))}
         </div>
+
+        {/* 12. Paginate large lists: View More button */}
+        {hasMore && (
+          <div className="text-center pt-4">
+            <button
+              onClick={() => setDisplayLimit((prev) => prev + 6)}
+              data-interactive
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-pill border border-brand-border text-xs font-semibold uppercase tracking-[0.18em] text-brand-text hover:border-brand-primary transition-all shadow-sm"
+            >
+              <span>View More Treatments ({allServicesForCategory.length - displayLimit} remaining)</span>
+              <ChevronDown className="w-3.5 h-3.5 text-brand-primary" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -13,13 +13,21 @@ export const TransformationSlider: React.FC = () => {
 
   const currentItem = TRANSFORMATION_ITEMS[selectedIdx] || TRANSFORMATION_ITEMS[0];
 
+  const isTicking = useRef(false);
+
   const handleMove = useCallback(
     (clientX: number) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
-      setSliderPosition(percentage);
+      if (isTicking.current) return;
+      isTicking.current = true;
+
+      requestAnimationFrame(() => {
+        isTicking.current = false;
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+        setSliderPosition(percentage);
+      });
     },
     []
   );
