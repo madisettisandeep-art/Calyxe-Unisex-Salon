@@ -370,7 +370,7 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
         )}
 
         {/* Layer 5: Modern Cinematic HUD Overlay */}
-        <div className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-4 sm:p-6 md:p-8">
+        <div className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-3 sm:p-6 md:p-8">
           {/* Top Step Indicators (Cleanly aligned top-right below nav) */}
           <div className="flex items-center justify-end w-full max-w-7xl mx-auto pt-16 md:pt-20">
             <div className="hidden lg:flex items-center gap-1.5 pointer-events-auto p-1.5 rounded-full glass-pill border border-brand-border/70 shadow-sm">
@@ -390,34 +390,44 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
             </div>
           </div>
 
-          {/* Bottom HUD: Tucked into bottom corners to keep the walkthrough fully unobstructed */}
-          <div className="w-full max-w-7xl mx-auto flex items-end justify-between gap-4 pb-2 sm:pb-4">
+          {/* Bottom HUD: Positioned cleanly ABOVE mobile action dock, tucked into corners for unobstructed view */}
+          <div className="w-full max-w-7xl mx-auto flex items-end justify-between gap-2.5 sm:gap-4 pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))] sm:pb-4">
             {/* Compact Narrative Card in Bottom-Left Corner */}
-            <div className="space-y-1 max-w-[270px] sm:max-w-xs md:max-w-sm text-left pointer-events-auto p-3 sm:p-4 rounded-xl sm:rounded-2xl glass-panel bg-brand-surface/85 backdrop-blur-xl border border-brand-border/70 shadow-lg transition-all duration-300">
-              <div className="inline-block text-[9px] sm:text-[10px] font-semibold tracking-[0.25em] uppercase text-brand-primary">
-                {currentScene.subtitle}
+            <div className="space-y-1 flex-1 min-w-0 max-w-[245px] sm:max-w-xs md:max-w-sm text-left pointer-events-auto p-2.5 sm:p-4 rounded-xl sm:rounded-2xl glass-panel bg-brand-surface/92 backdrop-blur-xl border border-brand-border/80 shadow-lg transition-all duration-300">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.2em] uppercase text-brand-primary truncate">
+                  {currentScene.subtitle}
+                </span>
+                <span className="font-mono text-[9px] sm:text-[10px] text-brand-muted shrink-0">
+                  {currentScene.numberStr} / 12
+                </span>
               </div>
-              <h2 className="text-base sm:text-xl font-editorial font-light text-brand-text tracking-wide leading-tight">
+              <h2 className="text-sm sm:text-lg md:text-xl font-editorial font-light text-brand-text tracking-wide leading-tight truncate sm:whitespace-normal">
                 {currentScene.title}
               </h2>
-              <p className="text-[11px] sm:text-xs text-brand-muted font-light leading-snug line-clamp-2">
+              <p className="text-[10px] sm:text-xs text-brand-muted font-light leading-snug line-clamp-1 sm:line-clamp-2">
                 {currentScene.description}
               </p>
             </div>
 
-            {/* Compact Scroll / Swipe Prompt in Bottom-Right Corner */}
-            <div className="flex flex-col items-end gap-1.5 text-brand-text pointer-events-auto p-2.5 sm:p-3 rounded-xl sm:rounded-2xl glass-pill bg-brand-surface/85 backdrop-blur-xl border border-brand-border/70 shadow-md">
-              <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-brand-muted font-medium">
-                <span>{isMobile ? "Swipe" : "Scroll"}</span>
+            {/* Compact Scroll / Next Prompt in Bottom-Right Corner (Tappable to advance) */}
+            <button
+              onClick={() => scrollToScene((currentSceneIdx + 1) % totalScenes)}
+              data-interactive
+              aria-label="Next walkthrough scene"
+              className="flex flex-col items-center gap-1 text-brand-text pointer-events-auto p-2 sm:p-3 rounded-xl sm:rounded-2xl glass-panel bg-brand-surface/92 backdrop-blur-xl border border-brand-border/80 shadow-md hover:border-brand-primary transition-all active:scale-95 shrink-0"
+            >
+              <div className="flex items-center gap-1 text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-brand-muted font-medium">
+                <span>{isMobile ? "Next" : "Scroll"}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-brand-primary animate-bounce" />
               </div>
-              <div className="w-16 sm:w-20 h-[2px] bg-brand-border overflow-hidden rounded-full">
+              <div className="w-12 sm:w-20 h-[2px] bg-brand-border overflow-hidden rounded-full">
                 <div
                   className="h-full bg-brand-primary transition-all duration-150"
                   style={{ width: `${Math.round(scrollProgress * 100)}%` }}
                 />
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>

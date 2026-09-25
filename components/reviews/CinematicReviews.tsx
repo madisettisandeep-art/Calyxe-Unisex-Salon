@@ -43,9 +43,9 @@ export const CinematicReviews: React.FC = () => {
           </div>
 
           {/* Prominent, Fully Visible Google Rating Badge */}
-          <div className="flex items-center gap-4 glass-panel border border-brand-border px-5 py-3.5 rounded-2xl shadow-md self-start md:self-auto">
+          <div className="flex items-center gap-3 sm:gap-4 glass-panel border border-brand-border px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl shadow-md self-start md:self-auto">
             <div className="flex items-center gap-2 text-brand-primary">
-              <span className="text-3xl sm:text-4xl font-editorial font-medium text-brand-text">
+              <span className="text-2xl sm:text-4xl font-editorial font-medium text-brand-text">
                 {SALON_INFO.googleRating}
               </span>
               <div className="flex flex-col">
@@ -72,11 +72,11 @@ export const CinematicReviews: React.FC = () => {
         </div>
 
         {/* Floating Cinematic Quote Presentation */}
-        <div className="relative min-h-[220px] sm:min-h-[200px] flex items-center justify-center text-center px-4 sm:px-12">
-          <Quote className="absolute -top-6 left-4 sm:left-12 w-14 h-14 text-brand-primary/10 pointer-events-none" />
+        <div className="relative min-h-[180px] sm:min-h-[200px] flex items-center justify-center text-center px-2 sm:px-12">
+          <Quote className="absolute -top-6 left-2 sm:left-12 w-10 sm:w-14 h-10 sm:h-14 text-brand-primary/10 pointer-events-none" />
 
-          <div className="space-y-6 max-w-3xl">
-            <p className="text-xl sm:text-3xl lg:text-4xl font-editorial font-light text-brand-text leading-relaxed tracking-wide italic">
+          <div className="space-y-4 sm:space-y-6 max-w-3xl">
+            <p className="text-base sm:text-2xl lg:text-3xl font-editorial font-light text-brand-text leading-relaxed tracking-wide italic">
               &ldquo;{review.text}&rdquo;
             </p>
 

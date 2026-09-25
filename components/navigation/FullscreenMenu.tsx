@@ -29,15 +29,16 @@ export const FullscreenMenu: React.FC<FullscreenMenuProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-between bg-brand-background/98 text-brand-text backdrop-blur-2xl p-6 sm:p-12 overflow-y-auto animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-50 flex flex-col justify-between bg-brand-background/98 text-brand-text backdrop-blur-2xl p-4 sm:p-12 pb-24 sm:pb-12 overflow-y-auto animate-in fade-in duration-300">
       {/* Top Bar */}
-      <div className="flex items-center justify-between max-w-7xl mx-auto w-full pb-8 border-b border-brand-border">
-        <CalyxeLogo size="lg" />
+      <div className="flex items-center justify-between max-w-7xl mx-auto w-full pb-6 sm:pb-8 border-b border-brand-border">
+        <CalyxeLogo size="sm" className="sm:hidden" />
+        <CalyxeLogo size="lg" className="hidden sm:flex" />
         <button
           onClick={onClose}
           data-interactive
           aria-label="Close menu"
-          className="flex items-center gap-2 px-4 py-2 rounded-full border border-brand-border text-brand-text hover:border-brand-primary transition-all duration-300 glass-pill"
+          className="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-brand-border text-brand-text hover:border-brand-primary transition-all duration-300 glass-pill"
         >
           <span className="text-xs uppercase tracking-[0.2em]">Close</span>
           <X className="w-4 h-4 text-brand-primary" />

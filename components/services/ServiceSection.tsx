@@ -27,8 +27,8 @@ const ServiceCard = React.memo(
     onSelect: (name: string) => void;
   }) => {
     return (
-      <div className="group relative p-6 sm:p-8 rounded-2xl glass-panel border border-brand-border hover:border-brand-primary/60 transition-all duration-300 flex flex-col justify-between">
-        <div className="space-y-4">
+      <div className="group relative p-5 sm:p-8 rounded-2xl glass-panel border border-brand-border hover:border-brand-primary/60 transition-all duration-300 flex flex-col justify-between">
+        <div className="space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between gap-4">
             <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-widest uppercase bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
               {service.gender}
@@ -39,7 +39,7 @@ const ServiceCard = React.memo(
             </div>
           </div>
 
-          <h3 className="text-xl sm:text-2xl font-editorial font-light text-brand-text tracking-wide group-hover:text-brand-primary transition-colors">
+          <h3 className="text-lg sm:text-2xl font-editorial font-light text-brand-text tracking-wide group-hover:text-brand-primary transition-colors">
             {service.service_name}
           </h3>
 

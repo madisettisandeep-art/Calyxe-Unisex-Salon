@@ -109,7 +109,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-brand-background text-brand-text selection:bg-brand-primary selection:text-white">
+    <main className="relative min-h-screen bg-brand-background text-brand-text selection:bg-brand-primary selection:text-white pb-20 sm:pb-0">
       {/* Luxury 0-100% Preloader */}
       <LoadingScreen />
 

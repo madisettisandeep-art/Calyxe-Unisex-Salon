@@ -94,7 +94,7 @@ export const TransformationSlider: React.FC = () => {
             onMouseLeave={() => setIsDragging(false)}
             onMouseMove={handleMouseMove}
             onTouchMove={handleTouchMove}
-            className="relative w-full aspect-[4/3] sm:aspect-[16/10] overflow-hidden select-none cursor-ew-resize"
+            className="relative w-full aspect-[4/3] sm:aspect-[16/10] overflow-hidden select-none cursor-ew-resize touch-none"
           >
             {/* After Image (Background layer) */}
             <div className="absolute inset-0">

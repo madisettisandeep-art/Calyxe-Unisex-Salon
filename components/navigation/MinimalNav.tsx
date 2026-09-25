@@ -21,16 +21,17 @@ export const MinimalNav: React.FC<MinimalNavProps> = ({
   return (
     <>
       {/* Top Floating Glass Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 px-4 sm:px-8 py-3.5 sm:py-5 transition-all duration-300">
+      <header className="fixed top-0 left-0 right-0 z-40 px-3 sm:px-8 py-2.5 sm:py-5 bg-brand-surface/85 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-b border-brand-border/40 sm:border-none transition-all duration-300">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Brand Logo */}
           <a
             href="#walkthrough-experience"
             data-interactive
             aria-label="Calyxé Unisex Salon Home"
-            className="group flex items-center"
+            className="group flex items-center shrink-0"
           >
-            <CalyxeLogo size="md" />
+            <CalyxeLogo size="sm" className="sm:hidden" />
+            <CalyxeLogo size="md" className="hidden sm:flex" />
           </a>
 
           {/* Center Walkthrough Tracker */}
@@ -41,7 +42,7 @@ export const MinimalNav: React.FC<MinimalNavProps> = ({
           </div>
 
           {/* Right Action Cluster */}
-          <div className="flex items-center gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* Ambient Soundscape */}
             <AmbientAudio />
 
@@ -75,8 +76,8 @@ export const MinimalNav: React.FC<MinimalNavProps> = ({
       </header>
 
       {/* Mobile Persistent Floating Bottom Action Dock */}
-      <div className="fixed bottom-3 left-3 right-3 z-40 sm:hidden">
-        <div className="flex items-center justify-between gap-2 p-2 rounded-2xl glass-panel shadow-2xl border border-brand-border">
+      <div className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] left-3 right-3 z-40 sm:hidden">
+        <div className="flex items-center justify-between gap-2 p-2 rounded-2xl glass-panel bg-brand-surface/95 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)] border border-brand-border/80">
           {/* Quick Call */}
           <a
             href={`tel:${SALON_INFO.phone}`}
