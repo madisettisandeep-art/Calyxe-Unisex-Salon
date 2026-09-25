@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Day / Light Mode Haute Luxury Tokens */
+  --brand-primary: #B8860B; /* Authentic Atelier Gold */
+  --brand-secondary: #14171A; /* Deep Obsidian Charcoal */
+  --brand-accent: #C5A059; /* Shimmering Champagne */
+  --brand-background: #FAF8F5; /* Alabaster Porcelain */
+  --brand-surface: rgba(255, 255, 255, 0.90);
+  --brand-surface-solid: #FFFFFF;
+  --brand-text: #121518; /* Rich Dark Charcoal */
+  --brand-muted: #5C6470; /* Refined Slate with AAA Contrast */
+  --brand-border: rgba(184, 134, 11, 0.18);
+  --brand-gold-gradient: linear-gradient(135deg, #D4AF37 0%, #996515 100%);
+  --brand-glass-glow: rgba(184, 134, 11, 0.12);
+}
+
+.dark {
+  /* Night / Dark Mode Haute Luxury Tokens */
+  --brand-primary: #D4AF37;
+  --brand-secondary: #F5F3EF;
+  --brand-accent: #E6C575;
+  --brand-background: #080A0C;
+  --brand-surface: rgba(16, 19, 23, 0.78);
+  --brand-surface-solid: #12161A;
+  --brand-text: #F3F1ED;
+  --brand-muted: #9CA3AF;
+  --brand-border: rgba(212, 175, 55, 0.25);
+  --brand-gold-gradient: linear-gradient(135deg, #E6C575 0%, #B8860B 100%);
+  --brand-glass-glow: rgba(212, 175, 55, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-tap-highlight-color: transparent;
+  background-color: var(--brand-background);
+  color: var(--brand-text);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: var(--brand-background);
+  background-image: 
+    radial-gradient(circle at 12% 18%, rgba(212, 175, 55, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 88% 75%, rgba(184, 134, 11, 0.04) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: var(--brand-text);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Custom Luxury Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--brand-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-border);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary);
+}
+
+/* Editorial Serif Utility */
+.font-editorial {
+  font-family: var(--font-cormorant), "Playfair Display", Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+/* Ultra-Fine Glassmorphism */
+.glass-panel {
+  background: var(--brand-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--brand-border);
+  box-shadow: 0 16px 38px -12px rgba(180, 140, 90, 0.12), 0 4px 16px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.dark .glass-panel {
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-pill {
+  background: var(--brand-surface);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--brand-border);
+  box-shadow: 0 2px 10px rgba(180, 140, 90, 0.06);
+}
+
+.dark .glass-pill {
+  box-shadow: none;
+}
+
+/* Text Shimmer Effect */
+.gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    #996515 0%,
+    #D4AF37 35%,
+    #F3E5AB 50%,
+    #B8860B 70%,
+    #996515 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 6s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
