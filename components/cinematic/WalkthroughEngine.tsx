@@ -337,18 +337,10 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
         )}
 
         {/* Layer 5: Modern Cinematic HUD Overlay */}
-        <div className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-6 md:p-12">
-          {/* Top Scene Subtitle Indicator */}
-          <div className="flex items-center justify-between w-full max-w-7xl mx-auto pt-14 md:pt-16">
-            <div className="pointer-events-auto flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill border border-brand-border text-xs tracking-[0.25em] uppercase text-brand-text font-medium shadow-md">
-              <Compass className="w-3.5 h-3.5 text-brand-primary animate-spin" style={{ animationDuration: "16s" }} />
-              <span>
-                SCENE <span className="text-brand-primary font-mono">{currentScene.numberStr}</span> / {totalScenes.toString().padStart(2, "0")}
-              </span>
-            </div>
-
-            {/* Quick Step Indicators */}
-            <div className="hidden lg:flex items-center gap-1.5 pointer-events-auto p-1.5 rounded-full glass-pill border border-brand-border shadow-md">
+        <div className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-4 sm:p-6 md:p-8">
+          {/* Top Step Indicators (Cleanly aligned top-right below nav) */}
+          <div className="flex items-center justify-end w-full max-w-7xl mx-auto pt-16 md:pt-20">
+            <div className="hidden lg:flex items-center gap-1.5 pointer-events-auto p-1.5 rounded-full glass-pill border border-brand-border/70 shadow-sm">
               {scenes.map((s, idx) => (
                 <button
                   key={s.id}
@@ -357,35 +349,36 @@ export const WalkthroughEngine: React.FC<WalkthroughEngineProps> = ({
                   title={`Jump to Scene ${s.numberStr}: ${s.title}`}
                   className={`h-1.5 transition-all duration-300 rounded-full ${
                     idx === currentSceneIdx
-                      ? "w-8 bg-brand-primary"
-                      : "w-2 bg-brand-muted/30 hover:bg-brand-primary/80"
+                      ? "w-6 bg-brand-primary"
+                      : "w-1.5 bg-brand-muted/30 hover:bg-brand-primary/80"
                   }`}
                 />
               ))}
             </div>
           </div>
 
-          {/* Bottom Scene Narrative Card */}
-          <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row items-end justify-between gap-6 pb-6 md:pb-8">
-            <div className="space-y-2 max-w-xl text-left pointer-events-auto p-5 sm:p-7 rounded-2xl glass-panel border border-brand-border shadow-2xl">
-              <div className="inline-block text-[11px] font-semibold tracking-[0.3em] uppercase text-brand-primary">
+          {/* Bottom HUD: Tucked into bottom corners to keep the walkthrough fully unobstructed */}
+          <div className="w-full max-w-7xl mx-auto flex items-end justify-between gap-4 pb-2 sm:pb-4">
+            {/* Compact Narrative Card in Bottom-Left Corner */}
+            <div className="space-y-1 max-w-[270px] sm:max-w-xs md:max-w-sm text-left pointer-events-auto p-3 sm:p-4 rounded-xl sm:rounded-2xl glass-panel bg-brand-surface/85 backdrop-blur-xl border border-brand-border/70 shadow-lg transition-all duration-300">
+              <div className="inline-block text-[9px] sm:text-[10px] font-semibold tracking-[0.25em] uppercase text-brand-primary">
                 {currentScene.subtitle}
               </div>
-              <h2 className="text-2xl sm:text-4xl font-editorial font-light text-brand-text tracking-wide leading-tight">
+              <h2 className="text-base sm:text-xl font-editorial font-light text-brand-text tracking-wide leading-tight">
                 {currentScene.title}
               </h2>
-              <p className="text-xs sm:text-sm text-brand-muted font-light leading-relaxed line-clamp-2 md:line-clamp-3">
+              <p className="text-[11px] sm:text-xs text-brand-muted font-light leading-snug line-clamp-2">
                 {currentScene.description}
               </p>
             </div>
 
-            {/* Scroll / Swipe Call-to-action */}
-            <div className="flex flex-col items-center md:items-end gap-2 text-brand-text pointer-events-auto self-center md:self-end p-3.5 rounded-2xl glass-pill border border-brand-border shadow-lg">
-              <div className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-brand-muted font-medium">
-                <span>{isMobile ? "Swipe to advance" : "Scroll to walk"}</span>
-                <ChevronDown className="w-4 h-4 text-brand-primary animate-bounce" />
+            {/* Compact Scroll / Swipe Prompt in Bottom-Right Corner */}
+            <div className="flex flex-col items-end gap-1.5 text-brand-text pointer-events-auto p-2.5 sm:p-3 rounded-xl sm:rounded-2xl glass-pill bg-brand-surface/85 backdrop-blur-xl border border-brand-border/70 shadow-md">
+              <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-brand-muted font-medium">
+                <span>{isMobile ? "Swipe" : "Scroll"}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-brand-primary animate-bounce" />
               </div>
-              <div className="w-24 h-[2px] bg-brand-border overflow-hidden rounded-full">
+              <div className="w-16 sm:w-20 h-[2px] bg-brand-border overflow-hidden rounded-full">
                 <div
                   className="h-full bg-brand-primary transition-all duration-150"
                   style={{ width: `${Math.round(scrollProgress * 100)}%` }}
